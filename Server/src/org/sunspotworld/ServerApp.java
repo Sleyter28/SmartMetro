@@ -49,7 +49,7 @@ public class ServerApp {
                 rCon.receive(dg);
                 String addr = dg.getAddress();  // read sender's Id
                 long time = dg.readLong();      // read time of the reading
-                int val = dg.readInt();         // read the sensor value
+                String val = dg.readUTF();       // read the sensor value
                 System.out.println(fmt.format(new Date(time)) + "  from: " + addr + "   value = " + val);
             } catch (Exception e) {
                 System.err.println("Caught " + e +  " while reading sensor samples.");

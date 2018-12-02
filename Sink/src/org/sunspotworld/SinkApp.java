@@ -32,6 +32,8 @@ import javax.microedition.midlet.MIDletStateChangeException;
 public class SinkApp extends MIDlet {
 
     String values;
+    private RadiogramConnection connServer = null;
+    private Datagram datagramServer;
 
     protected void startApp() throws MIDletStateChangeException {
         System.out.println("Hello, Sink");
@@ -39,18 +41,35 @@ public class SinkApp extends MIDlet {
         try {
            RadiogramConnection conn = (RadiogramConnection) Connector.open("radiogram://:68");
            Datagram datagram = conn.newDatagram(conn.getMaximumLength());
+
+           connServer = (RadiogramConnection)Connector.open("radiogram://7f00.0101.0000.1004:67");
+           datagramServer = (Datagram) conn.newDatagram(conn.getMaximumLength());
+
            while (true) {
                try {
                 conn.receive(datagram);
                 values = datagram.readUTF();
-                //Este deberia de convertir los valores en gson
                 System.out.println("Values : " + values);
+
 
                }
                catch (IOException ex) {
                    System.out.println("Error receiving packet: " + ex);
                    ex.printStackTrace();
                }
+
+                //Debemos cambiar esta condici?n
+                if (values != null || values != "" ) {
+                    try {
+                        datagramServer.writeUTF(values);
+                        conn.send(datagramServer);
+                        datagramServer.reset();
+                    }
+                    catch (Exception ex) {
+                        System.out.println("Error sending packet: " + ex);
+                        ex.printStackTrace();
+                    }
+                }
 
 
            }

@@ -44,7 +44,7 @@ public class AggregatorApp extends MIDlet {
     protected void startApp() throws MIDletStateChangeException {
        System.out.println("Hello Aggregator");
         try {
-            conn = (RadiogramConnection)Connector.open("radiogram://7f00.0101.0000.1004:68");
+            conn = (RadiogramConnection)Connector.open("radiogram://7f00.0101.0000.1003:68");
             datagram = (Datagram) conn.newDatagram(conn.getMaximumLength());
 
             RadiogramConnection conn1 = (RadiogramConnection) Connector.open("radiogram://:69"); //Permite la conexion a los nodes de temp y light
@@ -57,10 +57,10 @@ public class AggregatorApp extends MIDlet {
                     String value = replyDatagram.readUTF();
                     System.out.println("Data received: " + value);
                     replyDatagram.reset();
-                    if (value.startsWith("Temperature")) {
+                    if (value.startsWith("Temperature:")) {
                         values[0] = value;
                     }
-                    else if (value.startsWith("Light")) {
+                    else if (value.startsWith("Light:")) {
                         values[1] = value;
                     }
                     else if (value.startsWith("Velocity")){
@@ -73,7 +73,7 @@ public class AggregatorApp extends MIDlet {
                    ex.printStackTrace();
                }
                //Debemos cambiar esta condici?n
-                if (values.length == 2 ) {
+                if (values[0] != null && values[1] != null ) {
                     try {
                         datagram.writeUTF(values[0] + " , " + values[1]);
                         conn.send(datagram);

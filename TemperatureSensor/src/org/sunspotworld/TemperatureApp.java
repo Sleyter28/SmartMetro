@@ -40,9 +40,10 @@ public class TemperatureApp extends MIDlet {
         double tempValue;
 
         try {
+            conn = (RadiogramConnection) Connector.open("radiogram://7f00.0101.0000.1001:69");
+            dg = conn.newDatagram(conn.getMaximumLength());
+
             while(true){
-                conn = (RadiogramConnection) Connector.open("radiogram://7f00.0101.0000.1001:69");
-                dg = conn.newDatagram(conn.getMaximumLength());
                 tempValue = tempSensor.getCelsius();
                 try{
                     dg.reset();
@@ -56,7 +57,7 @@ public class TemperatureApp extends MIDlet {
                 } finally{
                     conn.close();
                 }
-                Utils.sleep(7000);
+                Utils.sleep(50000);
             }
 
         }catch(Exception e){

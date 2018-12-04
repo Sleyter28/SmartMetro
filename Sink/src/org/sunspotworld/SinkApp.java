@@ -32,6 +32,7 @@ import javax.microedition.midlet.MIDletStateChangeException;
 public class SinkApp extends MIDlet {
 
     String values;
+    boolean isData = false;
     private RadiogramConnection connServer = null;
     private Datagram datagramServer;
 
@@ -42,7 +43,7 @@ public class SinkApp extends MIDlet {
            RadiogramConnection conn = (RadiogramConnection) Connector.open("radiogram://:68");
            Datagram datagram = conn.newDatagram(conn.getMaximumLength());
 
-           connServer = (RadiogramConnection)Connector.open("radiogram://7f00.0101.0000.1004:67");
+           connServer = (RadiogramConnection)Connector.open("radiogram://broadcast:67");
            datagramServer = (Datagram) conn.newDatagram(conn.getMaximumLength());
 
            while (true) {
@@ -50,6 +51,7 @@ public class SinkApp extends MIDlet {
                 conn.receive(datagram);
                 values = datagram.readUTF();
                 System.out.println("Values : " + values);
+                isData = true;
 
 
                }
@@ -59,8 +61,9 @@ public class SinkApp extends MIDlet {
                }
 
                 //Debemos cambiar esta condici?n
-                if (values != null || values != "" ) {
+                if (isData == true) {
                     try {
+                        System.out.println(values);
                         datagramServer.writeUTF(values);
                         conn.send(datagramServer);
                         datagramServer.reset();
@@ -70,7 +73,7 @@ public class SinkApp extends MIDlet {
                         ex.printStackTrace();
                     }
                 }
-
+                isData = false;
 
            }
         }

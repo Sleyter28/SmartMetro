@@ -59,31 +59,34 @@ public class AggregatorApp extends MIDlet {
                     replyDatagram.reset();
                     if (value.startsWith("Temperature:")) {
                         values[0] = value;
+                        
                     }
-                    else if (value.startsWith("Light:")) {
+                    else if (value.startsWith("LightFall:")) {
                         values[1] = value;
+                        allowToSend = true;
                     }
-                    else if (value.startsWith("Velocity")){
-                        values[2] = value;
-                    }
+                    //else if (value.startsWith("Velocity")){
+                      //  values[2] = value;
+                    //}
                 }
                }
                catch (IOException ex) {
                    System.out.println("Error receiving packet: " + ex);
                    ex.printStackTrace();
                }
-               //Debemos cambiar esta condici?n
-                if (values[0] != null && values[1] != null ) {
-                    try {
-                        datagram.writeUTF(values[0] + " , " + values[1]);
-                        conn.send(datagram);
-                        datagram.reset();
-                    }
-                    catch (Exception ex) {
-                        System.out.println("Error sending packet: " + ex);
-                        ex.printStackTrace();
-                    }
-                }
+               if (allowToSend == true ) {
+                   try {
+                       System.out.println("Entry to if condition");
+                       datagram.writeUTF(values[0] + " , " + values[1]);
+                       conn.send(datagram);
+                       datagram.reset();
+                   }
+                   catch (Exception ex) {
+                       System.out.println("Error sending packet: " + ex);
+                       ex.printStackTrace();
+                   }
+               }
+               Utils.sleep(10000);
            }
         }
         catch (Exception e) {

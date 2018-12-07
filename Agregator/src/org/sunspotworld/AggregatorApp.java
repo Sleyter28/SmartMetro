@@ -86,6 +86,7 @@ public class AggregatorApp extends MIDlet {
                        ex.printStackTrace();
                    }
                }
+               allowToSend = false;
                Utils.sleep(10000);
            }
         }

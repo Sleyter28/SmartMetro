@@ -44,7 +44,7 @@ public class SinkApp extends MIDlet {
            Datagram datagram = conn.newDatagram(conn.getMaximumLength());
 
            connServer = (RadiogramConnection)Connector.open("radiogram://broadcast:67");
-           datagramServer = (Datagram) conn.newDatagram(conn.getMaximumLength());
+           datagramServer = (Datagram) connServer.newDatagram(connServer.getMaximumLength());
 
            while (true) {
                try {
@@ -60,12 +60,13 @@ public class SinkApp extends MIDlet {
                    ex.printStackTrace();
                }
 
-                //Debemos cambiar esta condici?n
                 if (isData == true) {
                     try {
+                        long now = System.currentTimeMillis();
                         System.out.println(values);
+                        datagramServer.writeLong(now);
                         datagramServer.writeUTF(values);
-                        conn.send(datagramServer);
+                        connServer.send(datagramServer);
                         datagramServer.reset();
                     }
                     catch (Exception ex) {

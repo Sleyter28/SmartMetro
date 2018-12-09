@@ -37,7 +37,9 @@ public class AggregatorApp extends MIDlet {
     private String tempValue = new String();
     private String lightValue = new String();
     private String [] values = new String[2];
-    private boolean allowToSend = false;
+    private boolean allowLight = false;
+    private boolean allowTemp = false;
+
 
     private ITriColorLEDArray leds = (ITriColorLEDArray) Resources.lookup(ITriColorLEDArray.class);
 
@@ -59,35 +61,39 @@ public class AggregatorApp extends MIDlet {
                     replyDatagram.reset();
                     if (value.startsWith("Temperature:")) {
                         values[0] = value;
+                        allowTemp = true;
                         
                     }
                     else if (value.startsWith("LightFall:")) {
                         values[1] = value;
-                        allowToSend = true;
+                        allowLight = true;
                     }
                     //else if (value.startsWith("Velocity")){
                       //  values[2] = value;
                     //}
+                    System.out.println("AllowTemp:"+allowTemp);
+                    System.out.println("AllowLight:"+allowLight);
                 }
                }
                catch (IOException ex) {
                    System.out.println("Error receiving packet: " + ex);
                    ex.printStackTrace();
                }
-               if (allowToSend == true ) {
+               if ((allowTemp == true) && (allowLight == true) ) {
+                   System.out.println("Entre al condicional");
                    try {
-                       System.out.println("Entry to if condition");
-                       datagram.writeUTF(values[0] + " , " + values[1]);
+                       datagram.writeUTF(values[0] + "," + values[1]);
                        conn.send(datagram);
                        datagram.reset();
+                       allowTemp = false;
+                       allowLight = false;
                    }
                    catch (Exception ex) {
                        System.out.println("Error sending packet: " + ex);
                        ex.printStackTrace();
                    }
                }
-               allowToSend = false;
-               Utils.sleep(10000);
+               
            }
         }
         catch (Exception e) {

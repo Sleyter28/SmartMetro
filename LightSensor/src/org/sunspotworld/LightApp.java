@@ -45,7 +45,7 @@ public class LightApp extends MIDlet {
             while (true) {
                 try {
                     int lightValue = light.getValue() / 84; // cause the MIDlet to exit
-                    System.out.println(lightValue);
+//                    System.out.println(lightValue);
 
                     //Lumenes in a train station are around 50lux/ [0-8] [3-50lux]
 
@@ -56,6 +56,7 @@ public class LightApp extends MIDlet {
                         conn.send(dg);
                         System.out.println("Se ha producido una caida en la via");
                         showLeds(0);
+                        fall= false;
                     }
 
                     else{

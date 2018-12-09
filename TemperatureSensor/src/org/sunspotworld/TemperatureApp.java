@@ -47,17 +47,15 @@ public class TemperatureApp extends MIDlet {
                 tempValue = tempSensor.getCelsius();
                 try{
                     dg.reset();
-                    dg.writeUTF("Temperature: "+tempValue);
+                    dg.writeUTF("Temperature:"+tempValue);
                     conn.send(dg);
                     System.out.println("Sending data... Temperature is: "+tempValue);
 
                 }catch(IOException ex){
                     System.out.println("Error: "+ex);
                     ex.printStackTrace();
-                } finally{
-                    conn.close();
                 }
-                Utils.sleep(50000);
+                Utils.sleep(5000);
             }
 
         }catch(Exception e){

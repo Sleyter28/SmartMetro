@@ -50,19 +50,18 @@ public class SinkApp extends MIDlet {
                try {
                 conn.receive(datagram);
                 values = datagram.readUTF();
-                System.out.println("Values : " + values);
                 isData = true;
-
-
                }
                catch (IOException ex) {
                    System.out.println("Error receiving packet: " + ex);
                    ex.printStackTrace();
                }
 
+                //Debemos cambiar esta condici?n
                 if (isData == true) {
                     try {
                         long now = System.currentTimeMillis();
+
                         System.out.println(values);
                         datagramServer.writeLong(now);
                         datagramServer.writeUTF(values);

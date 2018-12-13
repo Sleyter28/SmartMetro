@@ -34,43 +34,44 @@ public class TempSensor extends MIDlet {
     private Datagram dg;
     private RadiogramConnection conn;
     private boolean fall;
-    private LEDColor colors[] = {LEDColor.GREEN};
+    private LEDColor colors[] = {LEDColor.RED};
     double temperature;
     boolean increSpeed;
     private ITemperatureInput temp = (ITemperatureInput)Resources.lookup(ITemperatureInput.class, "location=eDemoboard");
-
+    int c = 0;
     protected void startApp() throws MIDletStateChangeException {
 
             while (true) {
             try {
-               //conn = (RadiogramConnection)Connector.open("radiogram://7f00.0101.0000.1004:67");
-               //dg = (Datagram) conn.newDatagram(conn.getMaximumLength());
+               conn = (RadiogramConnection)Connector.open("radiogram://7f00.0101.0000.1001:69"); //Send data to the aggregator by using port 69
+               //Write on port 69
+               dg = (Datagram) conn.newDatagram(conn.getMaximumLength());
                temperature = temp.getCelsius();
 
-            //Environmental temperature is 18 degrees
-            //When there are more than 50 people waiting for the metro, the temperature increase 4 degrees.
+            //Outdoor temperature is 26 degrees (summer in Madrid)
 
-            if (temperature > 21 ) {
-
-                   //dg.reset();
-                   //increSpeed=true;
-                   //dg.writeChar('T');
-                   //dg.writeBoolean(increSpeed);
-                   //conn.send(dg);
-                   System.out.println("Incrementar velocidad del metro");
-                   showLeds(0);
-            }
-
-            else{
+            if (temperature > 24 ) {
+                showLeds(0);
+                dg.reset();
+                increSpeed=true;
+                dg.writeUTF("Temperature " + String.valueOf(increSpeed));
+                conn.send(dg);
+                if (c == 0){
+                   System.out.println("The metro's speed should be increased");
+                }
+                 c++;
+            }else{
                  leds.getLED(0).setOff();
+                 increSpeed=false;
+                 c=0;
             }
 
            } catch (IOException ex) {
-            ex.printStackTrace();
-            }
-                Utils.sleep(1000);
+                ex.printStackTrace();
+             }
+               
+                Utils.sleep(1000); //The temperature should be measured every 1 minutes
            }
-
    }
 
     protected void pauseApp() {

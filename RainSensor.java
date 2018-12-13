@@ -36,33 +36,35 @@ public class RainSensor extends MIDlet {
     private boolean rain;
     private Datagram dg;
     private RadiogramConnection conn;
+    private int c = 0;
 
     protected void startApp() throws MIDletStateChangeException {
 try {
-     conn = (RadiogramConnection)Connector.open("radiogram://7f00.0101.0000.1004:69");
+     conn = (RadiogramConnection)Connector.open("radiogram://7f00.0101.0000.1001:69"); //Send data to the aggregator by using port 69
      dg = (Datagram) conn.newDatagram(conn.getMaximumLength());
-
+     //If it is raining and the speed of the metro is too high, an alarm goes off
      while(true){
         try {
-
            if  ((voltageAnalog() == true) && (getLight() == true)) {
                showLeds(0);
                dg.reset();
                rain=true;
                dg.writeUTF("Rain " + String.valueOf(rain));
-               System.out.println("It is raining");
 
-           }
-           
-           else {
+               if (c == 0){
+                   System.out.println("It is raining");
+               }
+               c++;
+           }else {
                leds.getLED(0).setOff();
                rain=false;
+               c=0;
            }
 
         } catch (IOException ex) {
             ex.printStackTrace();
         }
-        Utils.sleep(500);
+        Utils.sleep(18000); //The rain will be measured every 18000
      }
    }catch(Exception e){
 

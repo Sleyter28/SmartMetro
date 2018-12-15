@@ -36,46 +36,66 @@ public class LightSensor extends MIDlet {
     private LEDColor colors[] = {LEDColor.WHITE};
     private Datagram dgrx;
     private int c=0;
+    private boolean metroIsHere;
 
     protected void startApp() throws MIDletStateChangeException {
 
-            while (true) {
-            try {
-                conn = (RadiogramConnection)Connector.open("radiogram://7f00.0101.0000.1001:69"); //Send data to the aggregator by using port 69
-                dg = (Datagram) conn.newDatagram(conn.getMaximumLength());
-                RadiogramConnection rx = (RadiogramConnection) Connector.open("radiogram://:67");  //Read data from the aggregator by using port 67
-                dgrx = (Datagram) rx.newDatagram(rx.getMaximumLength());
-                int lightValue = light.getValue() / 84; // cause the MIDlet to exit      
-                //Lumenes in a train station are around 50lux/ [0-8] [3-50lux]
-                if (rx.packetsAvailable()) {
-                    rx.receive(dgrx);
-                    boolean metroIn = dgrx.readBoolean();
-                    dgrx.reset();
-                    //If Metro is here and lumenes are less than 3 in a range of 1-7
-                    if ((metroIn != true && lightValue < 3)) {
-                         showLeds(0);
-                         dg.reset();
-                         fall=true;
-                         dg.writeUTF("Fall " + String.valueOf(fall));
-                         conn.send(dg);
-                         if (c == 0){
-                            System.out.println("Somebody has fallen onto tracks");
-                          }
-                            c++;
-                    }else{
-                        leds.getLED(0).setOff();
-                        c=0;
-                        fall=false;
-                      }
-                }
-           } catch (IOException ex) {
-            ex.printStackTrace();
-            }
-                Utils.sleep(50);
+    try {
+
+        conn = (RadiogramConnection)Connector.open("radiogram://7f00.0101.0000.1001:66"); //Send data to the aggregator by using port 69
+        //Write on port 66
+        dg = (Datagram) conn.newDatagram(conn.getMaximumLength());
+        RadiogramConnection rx = (RadiogramConnection) Connector.open("radiogram://:70");  //read from the aggregator
+        dgrx = (Datagram) rx.newDatagram(rx.getMaximumLength());
+              while (true) {
+                try {
+                    //if the metro is on the platform means there are no falls
+                    if (rx.packetsAvailable()) {
+                        System.out.println("hola");
+                        rx.receive(dgrx);
+                        String metroIn = dgrx.readUTF();
+                        dgrx.reset();
+                        if (metroIn.startsWith("true")) {
+                            metroIsHere = true;
+                        }
+                    }
+                  }
+                   catch (IOException ex) {
+                       System.out.println("Error receiving packet: " + ex);
+                       ex.printStackTrace();
+                   }
+
+                             if ((metroIsHere != true) && (light.getValue()/84 < 3)) {
+                               try {
+                                 showLeds(0);
+                                 dg.reset();
+                                 fall=true;
+                                 dg.writeUTF("LightFall: " + String.valueOf(fall));
+                                 conn.send(dg);
+                                 if (c == 0){
+                                    System.out.println("Somebody has fallen onto tracks");
+                                  }
+
+                                    c++;
+
+                               } catch (Exception ex) {
+                                        System.out.println("Error sending packet: " + ex);
+                                        ex.printStackTrace();
+                                    }
+                             }else{
+                                leds.getLED(0).setOff();
+                                c=0;
+                                fall=false;
+                              }
+
+                        //Outdoor temperature is 26 degrees (summer in Madrid)
+              Utils.sleep(50);
            }
-
-   }
-
+       }catch (Exception e) {
+            System.out.println("Error opening connection: " + e);
+            e.printStackTrace();
+        }
+    }
     protected void pauseApp() {
         // This is not currently called by the Squawk VM
     }

@@ -35,50 +35,67 @@ public class Accelerator extends MIDlet {
     private RadiogramConnection conn;
     private LEDColor colors[] = {LEDColor.GREEN};
     private IAccelerometer3D accel = (IAccelerometer3D)Resources.lookup(IAccelerometer3D.class);
-    private Datagram dgrx;
     private boolean highAc;
     private int c=0;
+    double accX;
+    private Datagram dgrx;
+    boolean metroIsHere =false;
 
     protected void startApp() throws MIDletStateChangeException {
+    try {
 
-            while (true) {
-            try {
-              conn = (RadiogramConnection)Connector.open("radiogram://7f00.0101.0000.1001:69");
-              dg = (Datagram) conn.newDatagram(conn.getMaximumLength());
-              RadiogramConnection rx = (RadiogramConnection) Connector.open("radiogram://:67");  //read from the aggregator
-              dgrx = (Datagram) rx.newDatagram(rx.getMaximumLength());
-              if (rx.packetsAvailable()) {
-                rx.receive(dgrx);
-                boolean metroIn = dgrx.readBoolean();
-                dgrx.reset();
-                //If Metro is here
-                if (metroIn == true) {
-                    double accX = accel.getAccelX();
-                    //The maximum acceleration for this metro's model is 1m2/s
-                    if (accX >= 1.00){
-                        dg.reset();
-                        highAc=true;
-                        dg.writeUTF("Aceleracion " + String.valueOf(highAc));
-                        conn.send(dg);
-                        showLeds(0);
-                        if (c == 0){
-                        System.out.println("Metro's speed is too high");
+        conn = (RadiogramConnection)Connector.open("radiogram://7f00.0101.0000.1001:66"); //Send data to the aggregator by using port 69
+        //Write on port 66
+        dg = (Datagram) conn.newDatagram(conn.getMaximumLength());
+
+        RadiogramConnection rx = (RadiogramConnection) Connector.open("radiogram://:100");  //read from the aggregator
+        dgrx = (Datagram) rx.newDatagram(rx.getMaximumLength());
+              while (true) {
+                try {
+                   
+                    if (rx.packetsAvailable()) {
+                        rx.receive(dgrx);
+                        String metroIn = dgrx.readUTF();
+                        dgrx.reset();
+                        accX = accel.getAccelX();
+                        System.out.println(accX);
+                        //If Metro is here
+                        if (metroIn.startsWith("true")) {
+                            metroIsHere = true;
                         }
-                        c++;
-                    }else{
-                        leds.getLED(0).setOff();
-                        highAc=false;
-                        c=0;
                     }
-                }
-             }
-           } catch (IOException ex) {
-            ex.printStackTrace();
-            }
-             Utils.sleep(5000); //The acceleration will be caught once the metro is at the platform
+                  }
+                   catch (IOException ex) {
+                       System.out.println("Error receiving packet: " + ex);
+                       ex.printStackTrace();
+                   }
+                           
+                             if ((accX > 1)) {
+                                   try {
+                                        highAc = true;
+                                        dg.reset();
+                                        dg.writeUTF("Acceleration: " + String.valueOf(highAc));
+                                        conn.send(dg);
+                                        if (c == 0){
+                                           System.out.println("The metro's speed is too fast");
+                                        }
+                                         c++;
+                                        }
+                                    catch (Exception ex) {
+                                        System.out.println("Error sending packet: " + ex);
+                                        ex.printStackTrace();
+                                    }
+                                }
+                        
+                       
+                        //Outdoor temperature is 26 degrees (summer in Madrid)
+              Utils.sleep(1000);
            }
+       }catch (Exception e) {
+            System.out.println("Error opening connection: " + e);
+            e.printStackTrace();
         }
-
+    }
     protected void pauseApp() {
         // This is not currently called by the Squawk VM
     }

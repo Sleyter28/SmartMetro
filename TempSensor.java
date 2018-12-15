@@ -36,25 +36,23 @@ public class TempSensor extends MIDlet {
     private boolean fall;
     private LEDColor colors[] = {LEDColor.RED};
     double temperature;
-    boolean increSpeed;
     private ITemperatureInput temp = (ITemperatureInput)Resources.lookup(ITemperatureInput.class, "location=eDemoboard");
     int c = 0;
     protected void startApp() throws MIDletStateChangeException {
 
-            while (true) {
+    try {
+        conn = (RadiogramConnection)Connector.open("radiogram://7f00.0101.0000.1001:66"); //Send data to the aggregator by using port 69
+        //Write on port 69
+        dg = (Datagram) conn.newDatagram(conn.getMaximumLength());
+        while (true) {
             try {
-               conn = (RadiogramConnection)Connector.open("radiogram://7f00.0101.0000.1001:69"); //Send data to the aggregator by using port 69
-               //Write on port 69
-               dg = (Datagram) conn.newDatagram(conn.getMaximumLength());
+               
                temperature = temp.getCelsius();
-
             //Outdoor temperature is 26 degrees (summer in Madrid)
-
-            if (temperature > 24 ) {
+            if (temperature > 23 ) {
                 showLeds(0);
                 dg.reset();
-                increSpeed=true;
-                dg.writeUTF("Temperature " + String.valueOf(increSpeed));
+                dg.writeUTF("Temperature: " + temperature);
                 conn.send(dg);
                 if (c == 0){
                    System.out.println("The metro's speed should be increased");
@@ -62,7 +60,6 @@ public class TempSensor extends MIDlet {
                  c++;
             }else{
                  leds.getLED(0).setOff();
-                 increSpeed=false;
                  c=0;
             }
 
@@ -72,6 +69,12 @@ public class TempSensor extends MIDlet {
                
                 Utils.sleep(1000); //The temperature should be measured every 1 minutes
            }
+
+         }catch(Exception e){
+
+       System.out.println("Error opening the connection" +e);
+       e.printStackTrace();
+   }
    }
 
     protected void pauseApp() {

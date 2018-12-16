@@ -51,12 +51,13 @@ public class LightSensor extends MIDlet {
                 try {
                     //if the metro is on the platform means there are no falls
                     if (rx.packetsAvailable()) {
-                        System.out.println("hola");
                         rx.receive(dgrx);
                         String metroIn = dgrx.readUTF();
                         dgrx.reset();
                         if (metroIn.startsWith("true")) {
                             metroIsHere = true;
+                        } else {
+                            metroIsHere = false;
                         }
                     }
                   }

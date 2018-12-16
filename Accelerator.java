@@ -58,8 +58,7 @@ public class Accelerator extends MIDlet {
                         String metroIn = dgrx.readUTF();
                         dgrx.reset();
                         accX = accel.getAccelX();
-                        System.out.println(accX);
-                        //If Metro is here
+                        //If Metro is here that means there is no fall onto the platform
                         if (metroIn.startsWith("true")) {
                             metroIsHere = true;
                         }
@@ -70,7 +69,7 @@ public class Accelerator extends MIDlet {
                        ex.printStackTrace();
                    }
                            
-                             if ((accX > 1)) {
+                             if ((accX > 1) && (metroIsHere == true)) {
                                    try {
                                         highAc = true;
                                         dg.reset();

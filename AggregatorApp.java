@@ -66,7 +66,8 @@ public class AggregatorApp extends MIDlet {
             replyDatagram = (Datagram) conn1.newDatagram(conn1.getMaximumLength());
 
            while (true) {
-               try {
+               
+           try{
                 dg2.writeUTF(metroIn);
                 conn2.send(dg2);
                 dg2.reset();
@@ -74,6 +75,7 @@ public class AggregatorApp extends MIDlet {
                 dg3.writeUTF(metroIn);
                 conn3.send(dg3);
                 dg3.reset();
+             
 
                 if (conn1.packetsAvailable()) {
                     conn1.receive(replyDatagram);
@@ -94,7 +96,6 @@ public class AggregatorApp extends MIDlet {
                      else if (value.startsWith("Acceleration: ")){
                         values[2] = value;
                         allowSpeed = true;
-                        System.out.println("Bien");
 
                     }
                     else if (value.startsWith("Rain: ")) {

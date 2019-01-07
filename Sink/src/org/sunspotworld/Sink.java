@@ -25,44 +25,73 @@ import javax.microedition.midlet.MIDletStateChangeException;
 /**
  * The startApp method of this class is called by the VM to start the
  * application.
- * 
+ *
  * The manifest specifies this class as MIDlet-1, which means it will
  * be selected for execution.
  */
-public class SinkApp extends MIDlet {
+public class Sink extends MIDlet {
 
     String values;
     boolean isData = false;
+    private boolean allowRead = false;
+    private RadiogramConnection conn =null;
+    private Datagram datagram;
+    private Datagram replyAggregator;
     private RadiogramConnection connServer = null;
     private Datagram datagramServer;
+    private RadiogramConnection connServerReceiver;
+    private Datagram datagramServerReceiver;
+    private boolean metroIsHere;
 
     protected void startApp() throws MIDletStateChangeException {
         System.out.println("Hello, Sink");
 
         try {
-           RadiogramConnection conn = (RadiogramConnection) Connector.open("radiogram://:68");
-           Datagram datagram = conn.newDatagram(conn.getMaximumLength());
+           conn = (RadiogramConnection) Connector.open("radiogram://:80"); //Read from aggregator
+           datagram = conn.newDatagram(conn.getMaximumLength());
+           replyAggregator = conn.newDatagram(conn.getMaximumLength());
 
-           connServer = (RadiogramConnection)Connector.open("radiogram://broadcast:67");
+           connServer = (RadiogramConnection)Connector.open("radiogram://broadcast:67"); //Send data to the server
            datagramServer = (Datagram) connServer.newDatagram(connServer.getMaximumLength());
 
+           connServerReceiver = (RadiogramConnection)Connector.open("radiogram://:70"); //Receive data from the server
+           datagramServerReceiver = (Datagram) connServerReceiver.newDatagram(connServerReceiver.getMaximumLength());
+
+
            while (true) {
+               //Start reading data from the aggregator
                try {
-                conn.receive(datagram);
-                values = datagram.readUTF();
-                isData = true;
+                   if (conn.packetsAvailable()){
+                       System.out.println("There are available packets");
+                       conn.receive(datagram);
+                       values = datagram.readUTF();
+                       allowRead = datagram.readBoolean();
+
+                       String address = datagram.getAddress();
+                       System.out.println("Address: "+address);
+
+                       if(address.equals("7F00.0101.0000.1001")){
+                           System.out.println("Values : " + values);
+                           isData = true;
+                       } else{
+//                           String val = datagram.readUTF();
+                           metroIsHere = true;
+                       }
+                       datagram.reset();
+
+                   }
+                   
                }
                catch (IOException ex) {
                    System.out.println("Error receiving packet: " + ex);
                    ex.printStackTrace();
                }
+               
 
-                //Debemos cambiar esta condici?n
                 if (isData == true) {
                     try {
                         long now = System.currentTimeMillis();
-
-                        System.out.println(values);
+                        System.out.println(now);
                         datagramServer.writeLong(now);
                         datagramServer.writeUTF(values);
                         connServer.send(datagramServer);
@@ -75,6 +104,20 @@ public class SinkApp extends MIDlet {
                 }
                 isData = false;
 
+                if (metroIsHere == true){
+                    //Start sending data to aggregator
+                    try {
+                        replyAggregator.reset();
+                        replyAggregator.setAddress(datagram);
+                        replyAggregator.writeBoolean(metroIsHere);
+                        conn.send(replyAggregator);
+
+                    } catch (Exception ex) {
+                        System.out.println("Error sending packet: " + ex);
+                        ex.printStackTrace();
+                    }
+                }
+                metroIsHere = false;
            }
         }
         catch (Exception e) {

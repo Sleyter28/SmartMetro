@@ -35,6 +35,7 @@ public class Sink extends MIDlet {
     boolean isData = false;
     private boolean allowRead = false;
     private int voltage = 0;
+    private boolean voltageAllow = false;
     private RadiogramConnection conn =null;
     private Datagram datagram;
     private Datagram replyAggregator;
@@ -71,16 +72,22 @@ public class Sink extends MIDlet {
                        if(address.equals("7F00.0101.0000.1001")){
                            values = datagram.readUTF();
                            System.out.println("Values : " + values);
-
+                           metroIsHere = datagram.readBoolean();
+                           voltage = datagram.readInt();
                            isData = true;
                        } else{
                            String val = datagram.readUTF();
-                           metroIsHere = true;
-
+                           metroIsHere = datagram.readBoolean();
+                           voltage = datagram.readInt();
                        }
-                       allowRead = datagram.readBoolean();
-                       voltage = datagram.readInt();
+                       
                        datagram.reset();
+                       System.out.println("Voltage value: "+voltage);
+
+                       if (voltage >= 3){
+                           voltageAllow = true;
+                           System.out.println("I'm in the if");
+                       }
 
                    }
                    
@@ -111,8 +118,8 @@ public class Sink extends MIDlet {
                     //Start sending data to aggregator
                     try {
                         replyAggregator.reset();
-                        replyAggregator.setAddress(datagram);
-                        replyAggregator.writeBoolean(metroIsHere);
+                        replyAggregator.setAddress("7F00.0101.0000.1001");
+                        replyAggregator.writeUTF("Is Metro here? "+String.valueOf(metroIsHere));
                         conn.send(replyAggregator);
 
                     } catch (Exception ex) {
@@ -121,6 +128,21 @@ public class Sink extends MIDlet {
                     }
                 }
                 metroIsHere = false;
+
+                if (voltageAllow == true){
+                    try{
+                        System.out.println("I'm trying to send voltage value");
+                        replyAggregator.reset();
+                        replyAggregator.setAddress("7F00.0101.0000.1001");
+                        replyAggregator.writeUTF(Integer.toString(voltage));
+                        conn.send(replyAggregator);
+                    } catch(Exception ex){
+                        System.out.println("Error sending Voltage Packet to "+ex);
+                        ex.printStackTrace();
+                    }
+                }
+                voltageAllow = false;
+
            }
         }
         catch (Exception e) {

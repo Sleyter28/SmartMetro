@@ -68,7 +68,7 @@ public class Listener extends Thread implements PacketTypes {
      * Send a request to the remote SPOT to report on which accelerometer scale it is using.
      */
     public void metroIsHere ()  {
-        sendCmd(METRO_IS_HERE, 3);
+        sendCmd(METRO_IS_HERE, 0);
 
     }
 

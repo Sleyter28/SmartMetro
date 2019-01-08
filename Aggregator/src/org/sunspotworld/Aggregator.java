@@ -54,6 +54,8 @@ public class Aggregator extends MIDlet {
     private RadiogramConnection connSink;
     private Datagram datagramSink;
     private boolean metroIn;
+
+
     protected void startApp() throws MIDletStateChangeException {
        System.out.println("Hello Aggregator");
         try {
@@ -99,10 +101,12 @@ public class Aggregator extends MIDlet {
                            values[3] = value;
                        }
                    }
-                   if (connSink.packetsAvailable()) {
-                       connSink.receive(datagramSink);
-                       metroIn = datagramSink.readBoolean();
-                       datagramSink.reset();
+                   if (conn.packetsAvailable()) {
+                       System.out.println("There are packets available");
+                       conn.receive(datagram);
+                       String receiveValueSink = datagram.readUTF();
+                       System.out.println(receiveValueSink);
+                       datagram.reset();
 
                    }
 
@@ -112,20 +116,6 @@ public class Aggregator extends MIDlet {
 
                }
 
-//               if (allowtosend == true ) {
-//                   try {
-//                       System.out.println("Entry to if condition");
-//                       datagram.writeUTF(values[0] + " , " + values[1]+" , " +values[2]+ ","+values[3]);
-//                       conn.send(datagram);
-//                       datagram.reset();
-//                   }
-//                   catch (Exception ex) {
-//                       System.out.println("Error sending packet: " + ex);
-//                       ex.printStackTrace();
-//                   }
-//               }
-//               allowtosend = false;
-
                if((allowRain == true) && (allowSpeed == true)) {
 //                   System.out.println("Llueve y el tren va demasiado rapido");
                    allowRain = false;
@@ -133,7 +123,7 @@ public class Aggregator extends MIDlet {
                    message += "It is raining and the train velocity is too fast. \n";
                    datagram.writeUTF(tempValue+"," +lightValue+","+values[2]+","+values[3]+"Message: "+message);
                    datagram.writeBoolean(false);
-                   datagram.writeInt(3);
+                   datagram.writeInt(0);
                    conn.send(datagram);
                    datagram.reset();
 
@@ -145,7 +135,7 @@ public class Aggregator extends MIDlet {
                   message = "Please increase the train velocity. \n";
                   datagram.writeUTF(values[0] +"," +lightValue+ "," +accelValue+ "," +rainValue+",Message: "+message );
                   datagram.writeBoolean(false);
-                  datagram.writeInt(3);
+                  datagram.writeInt(0);
                   conn.send(datagram);
                   datagram.reset();
 
@@ -158,7 +148,7 @@ public class Aggregator extends MIDlet {
                   message = "The train velocity is too fast. \n";
                   datagram.writeUTF(tempValue+"," +lightValue+ "," +values[2]+"," +rainValue+",Message: "+message);
                   datagram.writeBoolean(false);
-                  datagram.writeInt(3);
+                  datagram.writeInt(0);
                   conn.send(datagram);
                   datagram.reset();
               }
@@ -170,7 +160,7 @@ public class Aggregator extends MIDlet {
                   message = "Someone falls in the railways. \n";
                   datagram.writeUTF(tempValue+","+values[1]+"," +accelValue+"," +rainValue+",Message: "+message);
                   datagram.writeBoolean(false);
-                  datagram.writeInt(3);
+                  datagram.writeInt(0);
                   conn.send(datagram);
                   datagram.reset();
               }
@@ -192,6 +182,8 @@ public class Aggregator extends MIDlet {
             e.printStackTrace();
         }
     }
+
+
 
     protected void pauseApp() {
         // This is not currently called by the Squawk VM

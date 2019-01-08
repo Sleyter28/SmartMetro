@@ -34,6 +34,7 @@ public class Sink extends MIDlet {
     String values;
     boolean isData = false;
     private boolean allowRead = false;
+    private int voltage = 0;
     private RadiogramConnection conn =null;
     private Datagram datagram;
     private Datagram replyAggregator;
@@ -64,19 +65,21 @@ public class Sink extends MIDlet {
                    if (conn.packetsAvailable()){
                        System.out.println("There are available packets");
                        conn.receive(datagram);
-                       values = datagram.readUTF();
-                       allowRead = datagram.readBoolean();
-
                        String address = datagram.getAddress();
                        System.out.println("Address: "+address);
 
                        if(address.equals("7F00.0101.0000.1001")){
+                           values = datagram.readUTF();
                            System.out.println("Values : " + values);
+
                            isData = true;
                        } else{
-//                           String val = datagram.readUTF();
+                           String val = datagram.readUTF();
                            metroIsHere = true;
+
                        }
+                       allowRead = datagram.readBoolean();
+                       voltage = datagram.readInt();
                        datagram.reset();
 
                    }

@@ -36,6 +36,9 @@ public class Aggregator extends MIDlet {
     private Datagram replyDatagram;
     private String tempValue = new String();
     private String lightValue = new String();
+    private String accelValue;
+    private String rainValue;
+    private String message = "";
     private String [] values = new String[4];
     private boolean allowLight = false;
     private boolean allowTemp = false;
@@ -79,22 +82,22 @@ public class Aggregator extends MIDlet {
 
                        if (value.startsWith("Temperature: ")) {
                            values[0] = value;
+                           tempValue = value;
                            allowTemp = true;
 
                        } else if (value.startsWith("LightFall: ")) {
                            values[1] = value;
+                           lightValue = value;
                            allowLight = true;
                        } else if (value.startsWith("Acceleration: ")){
                            values[2] = value;
+                           accelValue = value;
                            allowSpeed = true;
                        } else if (value.startsWith("Rain: ")) {
                            allowRain = true;
+                           rainValue= value;
                            values[3] = value;
                        }
-
-                       //System.out.println(values[0] + " , " + values[1]+" , " +values[2]+ ","+values[3]);
-                       //System.out.println("AllowTemp:"+allowTemp);
-                       //System.out.println("AllowLight:"+allowLight);
                    }
                    if (connSink.packetsAvailable()) {
                        connSink.receive(datagramSink);
@@ -109,38 +112,40 @@ public class Aggregator extends MIDlet {
 
                }
 
-               if (allowtosend == true ) {
-                   try {
-                       System.out.println("Entry to if condition");
-                       datagram.writeUTF(values[0] + " , " + values[1]+" , " +values[2]+ ","+values[3]);
-                       conn.send(datagram);
-                       datagram.reset();
-                   }
-                   catch (Exception ex) {
-                       System.out.println("Error sending packet: " + ex);
-                       ex.printStackTrace();
-                   }
-               }
-               allowtosend = false;
+//               if (allowtosend == true ) {
+//                   try {
+//                       System.out.println("Entry to if condition");
+//                       datagram.writeUTF(values[0] + " , " + values[1]+" , " +values[2]+ ","+values[3]);
+//                       conn.send(datagram);
+//                       datagram.reset();
+//                   }
+//                   catch (Exception ex) {
+//                       System.out.println("Error sending packet: " + ex);
+//                       ex.printStackTrace();
+//                   }
+//               }
+//               allowtosend = false;
 
                if((allowRain == true) && (allowSpeed == true)) {
-                   System.out.println("Llueve y el tren va demasiado rapido");
+//                   System.out.println("Llueve y el tren va demasiado rapido");
                    allowRain = false;
                    allowSpeed = false;
-                   datagram.writeUTF(values[0]+  "," +values[1]+"," +values[2]+ ","+values[3]+  " : Llueve y el tren va demasiado rapido");
+                   message += "It is raining and the train velocity is too fast. \n";
+                   datagram.writeUTF(tempValue+"," +lightValue+","+values[2]+","+values[3]+"Message: "+message);
+                   datagram.writeBoolean(false);
+                   datagram.writeInt(3);
                    conn.send(datagram);
                    datagram.reset();
-                   //allowRain =  false;
-                   //allowSpeed = false;
-                   //speedIncrease = false;
 
               }
 
                 if (allowTemp == true) {
                   allowTemp=false;
-                  System.out.println("Incrementar velocidad de tren");
-                  datagram.writeUTF(values[0] +"," +values[1]+ "," +values[2]+ "," +values[3] );
+//                  System.out.println("Incrementar velocidad de tren");
+                  message = "Please increase the train velocity. \n";
+                  datagram.writeUTF(values[0] +"," +lightValue+ "," +accelValue+ "," +rainValue+",Message: "+message );
                   datagram.writeBoolean(false);
+                  datagram.writeInt(3);
                   conn.send(datagram);
                   datagram.reset();
 
@@ -149,8 +154,11 @@ public class Aggregator extends MIDlet {
 
                 else if (allowSpeed == true) {
                   allowSpeed=false;
-                  System.out.println("Tren demasiado rapido en plataforma");
-                  datagram.writeUTF(values[0]+ "," +values[1]+ "," +values[2]+  ": Tren demasiado rapido en plataforma" + "," +values[3]);
+//                  System.out.println("Tren demasiado rapido en plataforma");
+                  message = "The train velocity is too fast. \n";
+                  datagram.writeUTF(tempValue+"," +lightValue+ "," +values[2]+"," +rainValue+",Message: "+message);
+                  datagram.writeBoolean(false);
+                  datagram.writeInt(3);
                   conn.send(datagram);
                   datagram.reset();
               }
@@ -158,8 +166,11 @@ public class Aggregator extends MIDlet {
 
                 else if (allowLight == true) {
                   allowLight=false;
-                  System.out.println("Caida en vias");
-                  datagram.writeUTF(values[0] +" , "+values[1]+  ": Caida en vias" + " , " +values[2] + " , " +values[3]);
+//                  System.out.println("Caida en vias");
+                  message = "Someone falls in the railways. \n";
+                  datagram.writeUTF(tempValue+","+values[1]+"," +accelValue+"," +rainValue+",Message: "+message);
+                  datagram.writeBoolean(false);
+                  datagram.writeInt(3);
                   conn.send(datagram);
                   datagram.reset();
               }

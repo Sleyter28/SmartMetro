@@ -16,6 +16,7 @@ import java.io.*;
 import java.text.DateFormat;
 import java.util.Date;
 import javax.microedition.io.*;
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -31,15 +32,17 @@ public class Server{
 
     // Broadcast port on which we listen for sensor samples
     private static final int HOST_PORT = 67;
+    //public static ImageIcon warningIcon = null;
 
     private JTextArea status;
-    private long[] addresses = new long[8];
-    private ServerGUI[] plots = new ServerGUI[8];
+    private long[] addresses = new long[1];
+    private ServerGUI[] plots = new ServerGUI[1];
 
     private String [] values;
     private String val = new String();
 
     private void setup() {
+        //warningIcon = new ImageIcon(getClass().getResource("/org/sunspotworld/complain.png"));
         JFrame fr = new JFrame("Smart Metro App");
         status = new JTextArea();
         JScrollPane sp = new JScrollPane(status);
@@ -80,21 +83,20 @@ public class Server{
         String tempValues[] = value.split(":");
         double val = Double.parseDouble(tempValues[1]);
         int finalVal = (int)val;
-        System.out.println("The values is: "+finalVal);
         return finalVal;
 
     }
 
-    private int GenerateValue (String value){
+    private String[] GenerateValue (String value){
         values = value.split(",");
-        System.out.println("Values[0]: "+values[0]);
         int temp = SplitValue(values[0]);
         //int light = SplitValue(values[1]);
 
         int valuesA[]= {temp};
-        return temp;
+        return values;
 
     }
+    
 
 
 
@@ -125,9 +127,11 @@ public class Server{
                 long time = dg.readLong();      // read time of the reading
                 System.out.println("Time: "+time);
                 val = dg.readUTF();       // read the sensor value
-                int values = GenerateValue(val);
-                System.out.println(fmt.format(new Date(time)) + "  from: " + addr + "   value = " + values);
-                smwui.addData(time, values);
+                String tempVal [] = GenerateValue(val);
+                String message = tempVal[4];
+                int values = SplitValue(tempVal[0]);
+                System.out.println(fmt.format(new Date(time)) + "  from: " + addr + "   value = " + tempVal);
+                smwui.addData(time, values, message);
             } catch (Exception e) {
                 System.err.println("Caught " + e +  " while reading sensor samples.");
                 throw e;

@@ -17,8 +17,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
 import com.sun.spot.util.Utils;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import javax.imageio.ImageIO;
 
 /**
  *
@@ -43,16 +47,29 @@ public class ServerGUI extends JFrame {
         listener.start();
     }
 
-    public void addData(long t, int v) {
+    public void addData(long t, int v, String message) {
         time[index] = t;
         val[index++] = v;
         jlTemp.setText(Integer.toString(v));
-        jlHum.setText("12%");
+        jlHum.setText("70%");
         jlPeople.setText("14");
         jlRain.setText("No");
+        if (message.isEmpty()){
+            lblMessage.setText("No message");
+
+        } else{
+            lblMessage.setText(message);
+            ImagePanel imagePanel = new ImagePanel();
+            warningIconPanel.add(imagePanel, BorderLayout.CENTER);
+            paintWarning(imagePanel);
+
+        }
         repaint();
     }
-     public void paint(Graphics g) {
+
+
+
+    public void paint(Graphics g) {
         super.paint(g);
         int left = dataPanel.getX() + 30;       // get size of panel
         int top = dataPanel.getY() + 400;
@@ -126,14 +143,14 @@ public class ServerGUI extends JFrame {
         jPanel4 = new javax.swing.JPanel();
         jLabel6 = new javax.swing.JLabel();
         jPanel5 = new javax.swing.JPanel();
-        jLabel7 = new javax.swing.JLabel();
-        jPanel8 = new javax.swing.JPanel();
+        lblMessage = new javax.swing.JLabel();
+        warningIconPanel = new javax.swing.JPanel();
         jPanel6 = new javax.swing.JPanel();
         jLabel8 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
         jLabel9 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
+        txtVoltage = new javax.swing.JTextField();
         jPanel7 = new javax.swing.JPanel();
         dataPanel = new javax.swing.JPanel();
         jMenuBar1 = new javax.swing.JMenuBar();
@@ -192,9 +209,9 @@ public class ServerGUI extends JFrame {
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jlRain, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jlPeople, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jlHum, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jlTemp, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(158, Short.MAX_VALUE))
+                            .addComponent(jlTemp, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jlHum, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap(82, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -213,8 +230,8 @@ public class ServerGUI extends JFrame {
                             .addComponent(jlTemp))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jlHum)
-                            .addComponent(jLabel3))
+                            .addComponent(jLabel3)
+                            .addComponent(jlHum))
                         .addGap(18, 18, 18)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel4)
@@ -228,21 +245,21 @@ public class ServerGUI extends JFrame {
 
         jPanel4.setBackground(new java.awt.Color(217, 231, 238));
 
-        jLabel6.setFont(new java.awt.Font("URW Gothic L", 1, 14));
-        jLabel6.setText("Warning Section");
+        jLabel6.setFont(new java.awt.Font("URW Gothic L", 1, 14)); // NOI18N
+        jLabel6.setText("Notification Section");
 
         jPanel5.setLayout(new java.awt.CardLayout());
 
-        jLabel7.setText("Is there someone in the lines?");
+        lblMessage.setText("Message:");
 
-        javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
-        jPanel8.setLayout(jPanel8Layout);
-        jPanel8Layout.setHorizontalGroup(
-            jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        javax.swing.GroupLayout warningIconPanelLayout = new javax.swing.GroupLayout(warningIconPanel);
+        warningIconPanel.setLayout(warningIconPanelLayout);
+        warningIconPanelLayout.setHorizontalGroup(
+            warningIconPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 100, Short.MAX_VALUE)
         );
-        jPanel8Layout.setVerticalGroup(
-            jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        warningIconPanelLayout.setVerticalGroup(
+            warningIconPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 100, Short.MAX_VALUE)
         );
 
@@ -256,14 +273,14 @@ public class ServerGUI extends JFrame {
                         .addContainerGap()
                         .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addGap(30, 30, 30)
-                        .addComponent(jLabel7))
-                    .addGroup(jPanel4Layout.createSequentialGroup()
                         .addGap(170, 170, 170)
                         .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel6))))
-                .addContainerGap(222, Short.MAX_VALUE))
+                            .addComponent(warningIconPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel6)))
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addGap(30, 30, 30)
+                        .addComponent(lblMessage, javax.swing.GroupLayout.PREFERRED_SIZE, 453, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(24, Short.MAX_VALUE))
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -273,9 +290,9 @@ public class ServerGUI extends JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel7)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(lblMessage, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(warningIconPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(18, Short.MAX_VALUE))
         );
 
@@ -284,8 +301,7 @@ public class ServerGUI extends JFrame {
         jLabel8.setFont(new java.awt.Font("URW Gothic L", 1, 14));
         jLabel8.setText("Command Section");
 
-        jButton1.setBackground(new java.awt.Color(44, 98, 34));
-        jButton1.setFont(new java.awt.Font("URW Gothic L", 1, 14));
+        jButton1.setFont(new java.awt.Font("URW Gothic L", 1, 14)); // NOI18N
         jButton1.setForeground(new java.awt.Color(45, 120, 66));
         jButton1.setText("Metro Here");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -294,11 +310,16 @@ public class ServerGUI extends JFrame {
             }
         });
 
-        jButton2.setFont(new java.awt.Font("URW Gothic L", 1, 14));
+        jButton2.setFont(new java.awt.Font("URW Gothic L", 1, 14)); // NOI18N
         jButton2.setForeground(new java.awt.Color(53, 126, 156));
         jButton2.setText("Set value");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
-        jLabel9.setFont(new java.awt.Font("DejaVu Sans", 1, 13));
+        jLabel9.setFont(new java.awt.Font("DejaVu Sans", 1, 15)); // NOI18N
         jLabel9.setText("Voltage:");
 
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
@@ -306,20 +327,20 @@ public class ServerGUI extends JFrame {
         jPanel6Layout.setHorizontalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel6Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 169, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(106, 106, 106)
+                .addComponent(jLabel9)
+                .addGap(42, 42, 42)
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel6Layout.createSequentialGroup()
-                        .addGap(391, 391, 391)
-                        .addComponent(jLabel8))
+                        .addComponent(txtVoltage, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 97, Short.MAX_VALUE)
+                        .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 171, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(99, 99, 99))
                     .addGroup(jPanel6Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 169, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(64, 64, 64)
-                        .addComponent(jLabel9)
-                        .addGap(32, 32, 32)
-                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(42, 42, 42)
-                        .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 171, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(206, Short.MAX_VALUE))
+                        .addComponent(jLabel8)
+                        .addContainerGap(410, Short.MAX_VALUE))))
         );
         jPanel6Layout.setVerticalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -329,9 +350,9 @@ public class ServerGUI extends JFrame {
                 .addGap(18, 18, 18)
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton1)
-                    .addComponent(jLabel9)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton2))
+                    .addComponent(jButton2)
+                    .addComponent(txtVoltage, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel9))
                 .addContainerGap(26, Short.MAX_VALUE))
         );
 
@@ -409,10 +430,33 @@ public class ServerGUI extends JFrame {
         
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    public void paintWarning(){
-        if (metroHere == false){
-            System.out.println("Someone falls in the lines");
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+        System.out.println("Initializing the voltage");
+        String textVoltageValue = txtVoltage.getText();
+        if (textVoltageValue.isEmpty() || textVoltageValue.equals(" ")){
+            System.out.println("The value is empty");
+        } else{
+            int voltageValue = Integer.parseInt(textVoltageValue);
+            if (voltageValue >= 3){
+                jlHum.setText("More than "+textVoltageValue);
+                listener.changeVoltage(voltageValue);
+            } else {
+                jlHum.setText("Less than "+textVoltageValue);
+                listener.changeVoltage(voltageValue);
+            }
+            
         }
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    public void paintWarning(ImagePanel imagePanel) {
+        try {
+            BufferedImage image = ImageIO.read(new File("complaing.png"));
+            imagePanel.setImage(image);
+        } catch (IOException ex) {
+            //Logger.getLogger(ServerGUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
     }
    
     private boolean metroHere;
@@ -426,7 +470,6 @@ public class ServerGUI extends JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JMenu jMenu1;
@@ -439,14 +482,35 @@ public class ServerGUI extends JFrame {
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
-    private javax.swing.JPanel jPanel8;
     private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JTextField jTextField1;
     private javax.swing.JLabel jlHum;
     private javax.swing.JLabel jlPeople;
     private javax.swing.JLabel jlRain;
     private javax.swing.JLabel jlTemp;
+    private javax.swing.JLabel lblMessage;
+    private javax.swing.JTextField txtVoltage;
+    private javax.swing.JPanel warningIconPanel;
     // End of variables declaration//GEN-END:variables
 
+    private class ImagePanel extends JPanel{
+        private BufferedImage image;
+
+        void setImage(BufferedImage image){
+            this.image = image;
+            repaint();
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            if(image != null){
+                g.drawImage(image, 100, 0, warningIconPanel);
+            }
+        }
+
+
+    }
 
 }
+
+

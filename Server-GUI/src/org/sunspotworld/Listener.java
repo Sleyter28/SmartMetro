@@ -68,8 +68,13 @@ public class Listener extends Thread implements PacketTypes {
      * Send a request to the remote SPOT to report on which accelerometer scale it is using.
      */
     public void metroIsHere ()  {
-        sendCmd(METRO_IS_HERE);
+        sendCmd(METRO_IS_HERE, 3);
 
+    }
+
+    public void changeVoltage(int voltage){
+        System.out.println("Voltage value: "+voltage);
+        sendCmd(false,voltage);
     }
 
 
@@ -78,12 +83,13 @@ public class Listener extends Thread implements PacketTypes {
      *
      * @param cmd the command requested
      **/
-    private void sendCmd (boolean cmd)  {
+    private void sendCmd (boolean cmd, int voltage)  {
         System.out.println("Setting value to: "+cmd);
         try {
             xdg.reset();
             xdg.writeUTF(ieee);
             xdg.writeBoolean(cmd);
+            xdg.writeInt(voltage);
             conn.send(xdg);
             System.out.println("Trying to send data");
         } catch (IOException ex) {
